@@ -1,6 +1,7 @@
 <?php
 // modules/laporan/index.php
 $page_title = 'Pusat Laporan';
+require_once '../../helpers/constants.php';
 require_once '../../config/database.php';
 require_once '../../helpers/session.php';
 require_once '../../helpers/functions.php';
@@ -31,20 +32,57 @@ require_once '../../includes/navbar.php';
             </div>
             <div class="card-body p-4">
                 <p class="text-muted small mb-4">Pilih kategori dan tentukan parameter laporan yang ingin Anda cetak atau ekspor.</p>
+                
+                <style>
+                    #reportTabs button {
+                        cursor: pointer !important;
+                        pointer-events: auto !important;
+                        user-select: none;
+                    }
+                </style>
+                
+                <script>
+                // Define switchTab function BEFORE buttons
+                function switchTab(tabId) {
+                    // Remove active from all buttons
+                    document.querySelectorAll('#reportTabs button').forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-selected', 'false');
+                    });
+                    
+                    // Remove active from all panes
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('show', 'active');
+                    });
+                    
+                    // Add active to clicked button
+                    const clickedBtn = document.getElementById(tabId + '-tab');
+                    if (clickedBtn) {
+                        clickedBtn.classList.add('active');
+                        clickedBtn.setAttribute('aria-selected', 'true');
+                    }
+                    
+                    // Show target pane
+                    const targetPane = document.getElementById(tabId);
+                    if (targetPane) {
+                        targetPane.classList.add('show', 'active');
+                    }
+                }
+                </script>
                             
                             <ul class="nav nav-pills mb-4 px-3 border-0 bg-light rounded-pill p-1" id="reportTabs" role="tablist" style="width: fit-content;">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active rounded-pill px-4 fw-bold" id="transaksi-tab" data-bs-toggle="pill" data-bs-target="#transaksi" type="button" role="tab" aria-controls="transaksi" aria-selected="true">
+                                    <button class="nav-link active rounded-pill px-4 fw-bold" id="transaksi-tab" data-bs-toggle="pill" data-bs-target="#transaksi" type="button" role="tab" aria-controls="transaksi" aria-selected="true" onclick="switchTab('transaksi')">
                                         <i class="fas fa-exchange-alt me-2"></i>Transaksi
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link rounded-pill px-4 fw-bold" id="stok-tab" data-bs-toggle="pill" data-bs-target="#stok" type="button" role="tab" aria-controls="stok" aria-selected="false">
+                                    <button class="nav-link rounded-pill px-4 fw-bold" id="stok-tab" data-bs-toggle="pill" data-bs-target="#stok" type="button" role="tab" aria-controls="stok" aria-selected="false" onclick="switchTab('stok')">
                                         <i class="fas fa-boxes me-2"></i>Gudang & Stok
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link rounded-pill px-4 fw-bold" id="keuangan-tab" data-bs-toggle="pill" data-bs-target="#keuangan" type="button" role="tab" aria-controls="keuangan" aria-selected="false">
+                                    <button class="nav-link rounded-pill px-4 fw-bold" id="keuangan-tab" data-bs-toggle="pill" data-bs-target="#keuangan" type="button" role="tab" aria-controls="keuangan" aria-selected="false" onclick="switchTab('keuangan')">
                                         <i class="fas fa-hand-holding-usd me-2"></i>Keuangan
                                     </button>
                                 </li>

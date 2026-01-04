@@ -1,5 +1,6 @@
 <?php
 // modules/laporan/cetak.php
+require_once '../../helpers/constants.php';
 require_once '../../config/database.php';
 require_once '../../helpers/session.php';
 require_once '../../helpers/functions.php';
@@ -93,7 +94,7 @@ switch ($jenis) {
                              (COALESCE(SUM(gs.qty_available), 0) * p.harga_estimasi) as nilai_aset
                       FROM produk p
                       LEFT JOIN gudang_stok gs ON p.id = gs.produk_id
-                      LEFT JOIN kategori_produk k ON p.kategori_id = k.id
+                      LEFT JOIN kategori k ON p.kategori_id = k.id
                       LEFT JOIN satuan s ON p.satuan_id = s.id
                       WHERE 1=1";
             if ($kategori_id) $query .= " AND p.kategori_id = '$kategori_id'";

@@ -1,7 +1,0 @@
-[03-Jan-2026 20:19:38 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
-Stack trace:
-#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
-#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
-#2 /home1/barajabg/barajacoffee.com/mbg/modules/analisis/index.php(4): require_once('/home1/barajabg...')
-#3 {main}
-  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103

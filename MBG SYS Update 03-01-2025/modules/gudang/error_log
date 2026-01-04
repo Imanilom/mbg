@@ -1,0 +1,7 @@
+[03-Jan-2026 20:20:21 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'barajabg_dbmbg.kategori_produk' doesn't exist in /home1/barajabg/barajacoffee.com/mbg/config/database.php:82
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database.php(82): mysqli_query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database.php(124): db_query()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/gudang/stok.php(84): db_get_all()
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database.php on line 82

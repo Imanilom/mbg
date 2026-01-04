@@ -1,0 +1,15 @@
+RewriteEngine On
+
+# Redirect www ke non-www (optional)
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+# Redirect /index.php ke /
+RewriteCond %{THE_REQUEST} \s/index\.php [NC]
+RewriteRule ^index\.php$ / [R=301,L]
+
+# Rewrite URL tanpa ekstensi ke file PHP
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule ^(index|about|services|menu|blog|contact|booking)$ $1.php [L]

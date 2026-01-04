@@ -1,0 +1,210 @@
+[03-Jan-2026 20:13:59 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:14:25 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:14:26 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:14:26 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:16:07 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:16:07 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:16:08 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:16:17 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:17:50 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:17:50 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:18:00 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:18:52 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:19:08 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:19:46 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:44:56 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:45:45 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:45:46 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:45:54 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:45:54 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:45:55 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:45:55 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:46:31 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:46:32 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:46:32 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:46:33 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:46:33 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:46:33 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:46:33 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:46:33 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103
+[03-Jan-2026 20:47:11 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: 'barajabg_dbmbg.v_rekomendasi_pembelian' is not VIEW in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php:103
+Stack trace:
+#0 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(103): mysqli->query()
+#1 /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php(290): create_market_price_tables()
+#2 /home1/barajabg/barajacoffee.com/mbg/modules/dashboard/index.php(6): require_once('/home1/barajabg...')
+#3 {main}
+  thrown in /home1/barajabg/barajacoffee.com/mbg/config/database_extended.php on line 103

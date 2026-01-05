@@ -286,6 +286,7 @@ function get_frequently_requested_products($limit = 10) {
 /**
  * Auto-create tables on first load
  */
-if ($conn) {
-    create_market_price_tables();
-}
+// Auto-create tables on first load - DISABLED for production stability
+// if ($conn) {
+//     create_market_price_tables();
+// }

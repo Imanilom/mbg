@@ -141,21 +141,27 @@ class MenuCatalogHelper {
      * Insert Items Helper
      */
     private function insertItems($menu_id, $items) {
-        $sql = "INSERT INTO menu_master_detail (menu_master_id, produk_id, resep_id, qty_needed, keterangan) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO menu_master_detail (menu_master_id, produk_id, resep_id, qty_needed, keterangan, item_type, custom_name) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
         
         foreach ($items as $item) {
             $produk_id = !empty($item['produk_id']) ? intval($item['produk_id']) : null;
             $resep_id = !empty($item['resep_id']) ? intval($item['resep_id']) : null;
-            $qty = floatval($item['qty_needed']); // Base Qty per portion? Or total? 
-            // Assumption: In Master Menu, if it's a template, "qty_needed" is usually "Qty Per Portion" 
-            // OR "Total Qty for a standard batch". 
-            // Given the requirement "resep / item yang diperlukan", usually it's per portion or per service unit.
-            // Let's assume Per Portion for consistency with the Planner scaling.
-            
+            $qty = floatval($item['qty_needed']); 
             $keterangan = $item['keterangan'] ?? '';
             
-            $stmt->bind_param("iiids", $menu_id, $produk_id, $resep_id, $qty, $keterangan);
+            // Determine item type if not explicitly sent (backward compatibility)
+            $item_type = $item['item_type'] ?? 'product'; // Default to product
+            if ($resep_id) $item_type = 'recipe';
+            
+            $custom_name = $item['manual_nama'] ?? null;
+            
+            if ($item_type === 'manual' && empty($custom_name)) {
+                // Skip invalid manual items? Or defaulting?
+                 // Let's assume validation happens in frontend/controller
+            }
+
+            $stmt->bind_param("iiidsss", $menu_id, $produk_id, $resep_id, $qty, $keterangan, $item_type, $custom_name);
             $stmt->execute();
         }
         $stmt->close();

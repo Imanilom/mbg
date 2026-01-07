@@ -1,9 +1,21 @@
 <?php
-$page_title = 'Form Menu Catalog';
-require_once '../../includes/header.php';
+// Start session and check auth manually before outputting anything
+require_once '../../config/database.php';
+require_once '../../helpers/session.php';
 require_once '../../helpers/MenuCatalogHelper.php';
 
-// Check access
+// Ensure session is started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Access Control
+if (!is_logged_in()) {
+    header('Location: ' . BASE_URL . '/modules/auth/login.php');
+    exit();
+}
+
+$user = get_user_data();
 if (!in_array($user['role'], ['admin', 'koperasi'])) {
     set_flash('error', 'Akses ditolak.');
     header('Location: ' . BASE_URL . '/modules/dashboard');
@@ -37,8 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!empty($_POST['item_type'])) {
             foreach ($_POST['item_type'] as $index => $type) {
                 $item = [
+                    'item_type' => $type,
                     'produk_id' => $type == 'product' ? $_POST['produk_id'][$index] : null,
                     'resep_id' => $type == 'recipe' ? $_POST['resep_id'][$index] : null,
+                    'manual_nama' => $type == 'manual' ? $_POST['manual_nama'][$index] : null,
                     'qty_needed' => $_POST['qty_needed'][$index],
                     'keterangan' => $_POST['keterangan'][$index] ?? ''
                 ];
@@ -68,6 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $products = $conn->query("SELECT id, nama_produk, kode_produk FROM produk ORDER BY nama_produk ASC")->fetch_all(MYSQLI_ASSOC);
 $recipes = $conn->query("SELECT id, nama_resep FROM resep ORDER BY nama_resep ASC")->fetch_all(MYSQLI_ASSOC);
 
+// NOW include the header and view
+$page_title = 'Form Menu Catalog';
+require_once '../../includes/header.php';
 require_once '../../includes/sidebar.php';
 require_once '../../includes/navbar.php';
 ?>
@@ -155,11 +172,12 @@ require_once '../../includes/navbar.php';
                                         <div class="col-md-3">
                                             <label class="form-label small fw-bold">Tipe</label>
                                             <select name="item_type[]" class="form-select item-type-select" onchange="toggleItemType(this)" required>
-                                                <option value="product" <?= $item['produk_id'] ? 'selected' : '' ?>>Produk</option>
-                                                <option value="recipe" <?= $item['resep_id'] ? 'selected' : '' ?>>Resep</option>
+                                                <option value="product" <?= ($item['item_type'] ?? '') == 'product' ? 'selected' : '' ?>>Produk</option>
+                                                <option value="recipe" <?= ($item['item_type'] ?? '') == 'recipe' ? 'selected' : '' ?>>Resep</option>
+                                                <option value="manual" <?= ($item['item_type'] ?? '') == 'manual' ? 'selected' : '' ?>>Manual</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-4 product-select" style="<?= $item['resep_id'] ? 'display:none' : '' ?>">
+                                        <div class="col-md-4 product-select" style="<?= ($item['item_type'] ?? '') == 'product' ? '' : 'display:none' ?>">
                                             <label class="form-label small fw-bold">Produk</label>
                                             <select name="produk_id[]" class="form-select">
                                                 <option value="">-- Pilih Produk --</option>
@@ -170,7 +188,7 @@ require_once '../../includes/navbar.php';
                                                 <?php endforeach; ?>
                                             </select>
                                         </div>
-                                        <div class="col-md-4 recipe-select" style="<?= $item['produk_id'] ? 'display:none' : '' ?>">
+                                        <div class="col-md-4 recipe-select" style="<?= ($item['item_type'] ?? '') == 'recipe' ? '' : 'display:none' ?>">
                                             <label class="form-label small fw-bold">Resep</label>
                                             <select name="resep_id[]" class="form-select">
                                                 <option value="">-- Pilih Resep --</option>
@@ -180,6 +198,11 @@ require_once '../../includes/navbar.php';
                                                 </option>
                                                 <?php endforeach; ?>
                                             </select>
+                                        </div>
+                                        <div class="col-md-4 manual-input" style="<?= ($item['item_type'] ?? '') == 'manual' ? '' : 'display:none' ?>">
+                                            <label class="form-label small fw-bold">Nama Item</label>
+                                            <input type="text" name="manual_nama[]" class="form-control" 
+                                                   value="<?= htmlspecialchars($item['custom_name'] ?? '') ?>" placeholder="Nama Item / Bahan">
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label small fw-bold">Qty/Porsi</label>
@@ -265,6 +288,7 @@ function addItem() {
                     <select name="item_type[]" class="form-select item-type-select" onchange="toggleItemType(this)" required>
                         <option value="product">Produk</option>
                         <option value="recipe">Resep</option>
+                        <option value="manual">Manual</option>
                     </select>
                 </div>
                 <div class="col-md-4 product-select">
@@ -284,6 +308,10 @@ function addItem() {
                         <option value="<?= $r['id'] ?>"><?= htmlspecialchars($r['nama_resep']) ?></option>
                         <?php endforeach; ?>
                     </select>
+                </div>
+                <div class="col-md-4 manual-input" style="display:none">
+                    <label class="form-label small fw-bold">Nama Item</label>
+                    <input type="text" name="manual_nama[]" class="form-control" placeholder="Nama Item / Bahan">
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small fw-bold">Qty/Porsi</label>
@@ -313,15 +341,19 @@ function toggleItemType(select) {
     const row = select.closest('.item-row');
     const productSelect = row.querySelector('.product-select');
     const recipeSelect = row.querySelector('.recipe-select');
+    const manualInput = row.querySelector('.manual-input');
+    
+    // Hide all first
+    productSelect.style.display = 'none';
+    recipeSelect.style.display = 'none';
+    manualInput.style.display = 'none';
     
     if (select.value === 'product') {
         productSelect.style.display = 'block';
-        recipeSelect.style.display = 'none';
-        recipeSelect.querySelector('select').value = '';
-    } else {
-        productSelect.style.display = 'none';
+    } else if (select.value === 'recipe') {
         recipeSelect.style.display = 'block';
-        productSelect.querySelector('select').value = '';
+    } else if (select.value === 'manual') {
+        manualInput.style.display = 'block';
     }
 }
 

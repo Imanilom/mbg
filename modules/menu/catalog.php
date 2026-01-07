@@ -1,10 +1,22 @@
 <?php
-$page_title = 'Menu Catalog';
-require_once '../../includes/header.php';
+// Start session and check auth manually before outputting anything
+require_once '../../config/database.php';
+require_once '../../helpers/session.php';
 require_once '../../helpers/MenuCatalogHelper.php';
 require_once '../../helpers/functions.php';
 
-// Check access
+// Ensure session is started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Access Control
+if (!is_logged_in()) {
+    header('Location: ' . BASE_URL . '/modules/auth/login.php');
+    exit();
+}
+
+$user = get_user_data();
 if (!in_array($user['role'], ['admin', 'koperasi'])) {
     set_flash('error', 'Akses ditolak.');
     header('Location: ' . BASE_URL . '/modules/dashboard');
@@ -29,6 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
 $catalogHelper = new MenuCatalogHelper();
 $menus = $catalogHelper->getAllMenus();
 
+$page_title = 'Menu Catalog';
+require_once '../../includes/header.php';
 require_once '../../includes/sidebar.php';
 require_once '../../includes/navbar.php';
 ?>

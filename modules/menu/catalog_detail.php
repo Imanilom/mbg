@@ -139,7 +139,7 @@ require_once '../../includes/navbar.php';
                                             <strong><?= htmlspecialchars($item['nama_produk']) ?></strong>
                                             <br><small class="text-muted"><?= htmlspecialchars($item['kode_produk']) ?></small>
                                         <?php else: ?>
-                                            <strong><?= htmlspecialchars($item['nama_resep']) ?></strong>
+                                            <strong><?= htmlspecialchars($item['custom_name']) ?></strong>
                                             <br><small class="text-muted">Resep komposit</small>
                                         <?php endif; ?>
                                     </td>

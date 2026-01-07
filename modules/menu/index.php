@@ -1,10 +1,23 @@
 <?php
-$page_title = 'Menu Harian';
-require_once '../../includes/header.php';
+// Load dependencies first (before any output)
+require_once '../../config/database.php';
 require_once '../../helpers/MenuHarianHelper.php';
 require_once '../../helpers/menu_helpers.php';
+require_once '../../helpers/functions.php';
 
-// Handle actions
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Get user from session
+$user = $_SESSION['user'] ?? null;
+if (!$user) {
+    header('Location: ' . BASE_URL . '/login.php');
+    exit();
+}
+
+// Handle actions BEFORE any output
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] == 'delete' && isset($_POST['id'])) {
         $menuHelper = new MenuHarianHelper();
@@ -24,7 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
 
 // Check access
 if (!in_array($user['role'], ['admin', 'koperasi'])) {
-    set_flash('error', 'Akses ditolak.');
+    $_SESSION['flash_type'] = 'error';
+    $_SESSION['flash_message'] = 'Akses ditolak.';
     header('Location: ' . BASE_URL . '/modules/dashboard');
     exit();
 }
@@ -74,6 +88,9 @@ while ($row = $result->fetch_assoc()) {
     $menus[] = $row;
 }
 
+// NOW include header (after all redirects and processing)
+$page_title = 'Menu Harian';
+require_once '../../includes/header.php';
 require_once '../../includes/sidebar.php';
 require_once '../../includes/navbar.php';
 ?>
@@ -85,10 +102,16 @@ require_once '../../includes/navbar.php';
             <h1 class="h3 mb-0 text-gray-800">
                 <i class="fas fa-utensils me-2"></i>Menu Harian
             </h1>
-            <p class="mb-0 text-muted">Kelola menu harian dengan pengecekan stok otomatis</p>
+            <p class="mb-0 text-muted">Kelola menu harian dengan tampilan kartu yang informatif</p>
         </div>
-        <div>
-            <a href="create.php" class="btn btn-primary">
+        <div class="d-flex gap-2">
+            <a href="catalog.php" class="btn btn-info text-white shadow-sm">
+                <i class="fas fa-book-open me-1"></i> Menu Catalog
+            </a>
+            <a href="planner.php" class="btn btn-success text-white shadow-sm">
+                <i class="fas fa-calendar-alt me-1"></i> Planner View
+            </a>
+            <a href="create.php" class="btn btn-primary shadow-sm">
                 <i class="fas fa-plus me-1"></i> Buat Menu Baru
             </a>
         </div>
@@ -98,16 +121,11 @@ require_once '../../includes/navbar.php';
     <?php show_flash(); ?>
 
     <!-- Filter Card -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-filter me-1"></i>Filter
-            </h6>
-        </div>
+    <div class="card shadow mb-4 border-left-primary">
         <div class="card-body">
-            <form method="GET" action="" class="row g-3">
+            <form method="GET" action="" class="row g-3 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label">Status</label>
+                    <label class="form-label small fw-bold text-uppercase">Status</label>
                     <select name="status" class="form-select">
                         <option value="">Semua Status</option>
                         <option value="draft" <?= $filter_status == 'draft' ? 'selected' : '' ?>>Draft</option>
@@ -118,123 +136,104 @@ require_once '../../includes/navbar.php';
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Tanggal Dari</label>
+                    <label class="form-label small fw-bold text-uppercase">Dari Tanggal</label>
                     <input type="date" name="date_from" class="form-control" value="<?= $filter_date_from ?>">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Tanggal Sampai</label>
+                    <label class="form-label small fw-bold text-uppercase">Sampai Tanggal</label>
                     <input type="date" name="date_to" class="form-control" value="<?= $filter_date_to ?>">
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary me-2">
-                        <i class="fas fa-search me-1"></i>Filter
-                    </button>
-                    <a href="index.php" class="btn btn-secondary">
-                        <i class="fas fa-redo me-1"></i>Reset
-                    </a>
+                <div class="col-md-3">
+                    <div class="d-grid gap-2 d-md-block">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i> Filter
+                        </button>
+                        <a href="index.php" class="btn btn-secondary">
+                            <i class="fas fa-redo me-1"></i> Reset
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Menu List Card -->
-    <div class="card shadow">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-list me-1"></i>Daftar Menu Harian
-            </h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped" id="menuTable">
-                    <thead>
-                        <tr>
-                            <th>No Menu</th>
-                            <th>Tanggal</th>
-                            <th>Nama Menu</th>
-                            <th>Kantor</th>
-                            <th>Porsi</th>
-                            <th>Total Porsi</th>
-                            <th>Status Stok</th>
-                            <th>Status</th>
-                            <th>Dibuat Oleh</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($menus)): ?>
-                        <tr>
-                            <td colspan="10" class="text-center py-4">
-                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                <p class="text-muted mb-0">Belum ada menu harian</p>
-                            </td>
-                        </tr>
-                        <?php else: ?>
-                        <?php foreach ($menus as $menu): ?>
-                        <tr>
-                            <td>
-                                <strong><?= htmlspecialchars($menu['no_menu']) ?></strong>
-                            </td>
-                            <td><?= format_tanggal($menu['tanggal_menu']) ?></td>
-                            <td>
-                                <strong><?= htmlspecialchars($menu['nama_menu']) ?></strong>
-                            </td>
-                            <td><?= htmlspecialchars($menu['nama_kantor'] ?? 'Semua Kantor') ?></td>
-                            <td>
-                                <span class="badge bg-info"><?= format_number($menu['total_porsi']) ?> porsi</span>
-                            </td>
-                            <td>
-                                <small class="text-muted">
-                                    <?= $menu['total_items'] ?> items<br>
-                                    <span class="text-success"><?= $menu['items_from_warehouse'] ?> dari gudang</span><br>
-                                    <span class="text-warning"><?= $menu['items_to_purchase'] ?> perlu beli</span>
-                                </small>
-                            </td>
-                            <td>
-                                <?php if ($menu['items_to_purchase'] > 0): ?>
-                                    <span class="badge bg-warning text-dark">
-                                        <i class="fas fa-shopping-cart me-1"></i>Perlu Beli
-                                    </span>
-                                <?php else: ?>
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-check me-1"></i>Stok Cukup
-                                    </span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= get_status_badge($menu['status'], 'menu') ?></td>
-                            <td>
-                                <small>
-                                    <?= htmlspecialchars($menu['created_by_name']) ?><br>
-                                    <span class="text-muted"><?= format_datetime($menu['created_at']) ?></span>
-                                </small>
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="detail.php?id=<?= $menu['id'] ?>" 
-                                       class="btn btn-info" title="Detail">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <?php if ($menu['status'] == 'draft'): ?>
-                                    <a href="edit.php?id=<?= $menu['id'] ?>" 
-                                       class="btn btn-warning" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <button type="button" 
-                                            class="btn btn-danger" 
-                                            onclick="confirmDelete(<?= $menu['id'] ?>)" 
-                                            title="Hapus">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+    <!-- Menu Cards -->
+    <div class="row">
+        <?php if (empty($menus)): ?>
+        <div class="col-12 text-center py-5">
+            <div class="text-gray-300 mb-3">
+                <i class="fas fa-utensils fa-4x"></i>
             </div>
+            <h5>Belum ada menu harian</h5>
+            <p class="text-muted">Buat menu baru atau ubah filter pencarian Anda</p>
         </div>
+        <?php else: ?>
+            <?php foreach ($menus as $menu): ?>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-<?= get_status_color($menu['status']) ?> shadow h-100 py-2 card-menu">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-<?= get_status_color($menu['status']) ?> text-uppercase mb-1">
+                                    <?= format_tanggal($menu['tanggal_menu']) ?>
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800 mb-2">
+                                    <?= htmlspecialchars($menu['nama_menu']) ?>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-building me-1"></i> <?= htmlspecialchars($menu['nama_kantor'] ?? 'Semua Kantor') ?>
+                                    </span>
+                                </div>
+                                <p class="text-muted small mb-2 text-truncate" style="max-width: 250px;">
+                                    <?= htmlspecialchars($menu['deskripsi'] ?? '-') ?>
+                                </p>
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <div class="small">
+                                        <i class="fas fa-users text-info me-1"></i> <strong><?= format_number($menu['total_porsi']) ?></strong> Porsi
+                                    </div>
+                                    <div class="small">
+                                         <?= get_menu_status_badge($menu['status']) ?>
+                                    </div>
+                                </div>
+                                
+                                <hr class="my-2">
+                                
+                                <div class="d-flex justify-content-between align-items-center small text-muted">
+                                    <div>
+                                        <i class="fas fa-box me-1"></i> <?= $menu['total_items'] ?> Item
+                                    </div>
+                                    <div class="<?= $menu['items_to_purchase'] > 0 ? 'text-warning fw-bold' : 'text-success' ?>">
+                                        <?php if ($menu['items_to_purchase'] > 0): ?>
+                                            <i class="fas fa-shopping-cart me-1"></i> Beli
+                                        <?php else: ?>
+                                            <i class="fas fa-check me-1"></i> Stok OK
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hover Actions Overlay -->
+                        <div class="card-actions mt-3 pt-2 border-top d-flex justify-content-between">
+                            <a href="detail.php?id=<?= $menu['id'] ?>" class="btn btn-sm btn-info text-white flex-grow-1 me-1">
+                                <i class="fas fa-eye"></i> Detail
+                            </a>
+                            <?php if ($menu['status'] == 'draft'): ?>
+                                <a href="edit.php?id=<?= $menu['id'] ?>" class="btn btn-sm btn-warning text-white flex-grow-1 me-1">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <button type="button" class="btn btn-sm btn-danger flex-grow-1" onclick="confirmDelete(<?= $menu['id'] ?>)">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -250,32 +249,30 @@ function confirmDelete(id) {
         document.getElementById('deleteForm').submit();
     }
 }
-
-// Add status badge helper for menu
-function getMenuStatusBadge(status) {
-    const badges = {
-        'draft': '<span class="badge bg-secondary">DRAFT</span>',
-        'approved': '<span class="badge bg-primary">APPROVED</span>',
-        'processing': '<span class="badge bg-warning text-dark">PROCESSING</span>',
-        'completed': '<span class="badge bg-success">COMPLETED</span>',
-        'cancelled': '<span class="badge bg-danger">CANCELLED</span>'
-    };
-    return badges[status] || '<span class="badge bg-light text-dark">' + status.toUpperCase() + '</span>';
-}
 </script>
 
 <?php
-// Add menu status badge to constants
+function get_status_color($status) {
+    $colors = [
+        'draft' => 'secondary',
+        'approved' => 'primary',
+        'processing' => 'warning',
+        'completed' => 'success',
+        'cancelled' => 'danger'
+    ];
+    return $colors[$status] ?? 'secondary';
+}
+
 if (!function_exists('get_menu_status_badge')) {
     function get_menu_status_badge($status) {
         $badges = [
-            'draft' => '<span class="badge bg-secondary rounded-pill px-3">DRAFT</span>',
-            'approved' => '<span class="badge bg-primary rounded-pill px-3">APPROVED</span>',
-            'processing' => '<span class="badge bg-warning text-dark rounded-pill px-3">PROCESSING</span>',
-            'completed' => '<span class="badge bg-success rounded-pill px-3">COMPLETED</span>',
-            'cancelled' => '<span class="badge bg-danger rounded-pill px-3">CANCELLED</span>'
+            'draft' => '<span class="badge bg-secondary">DRAFT</span>',
+            'approved' => '<span class="badge bg-primary">APPROVED</span>',
+            'processing' => '<span class="badge bg-warning text-dark">PROCESSING</span>',
+            'completed' => '<span class="badge bg-success">COMPLETED</span>',
+            'cancelled' => '<span class="badge bg-danger">CANCELLED</span>'
         ];
-        return $badges[$status] ?? '<span class="badge bg-light text-dark rounded-pill px-3">' . strtoupper($status) . '</span>';
+        return $badges[$status] ?? '<span class="badge bg-light text-dark">' . strtoupper($status) . '</span>';
     }
 }
 

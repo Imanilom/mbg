@@ -77,10 +77,11 @@ $user_role = $_SESSION['user']['role'] ?? 'guest';
                                 <th>Jenis</th>
                                 <th>Kategori</th>
                                 <th>Satuan</th>
+                                <th>Supplier</th>
                                 <th>Harga Beli</th>
                                 <th>Harga Jual 1</th>
                                 <th>Harga Jual 2</th>
-                                <th>Harga Jual 3</th>
+                                <th>HET (Harga Eceran Tertinggi)</th>
                                 <th>Tipe</th>
                                 <th>Status</th>
                                 <th width="12%">Aksi</th>
@@ -192,17 +193,31 @@ $user_role = $_SESSION['user']['role'] ?? 'guest';
                             </div>
                             
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Stok Minimum</label>
                                         <input type="number" class="form-control" name="stok_minimum" id="stok_minimum" value="0">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Masa Kadaluarsa (Hari)</label>
                                         <input type="number" class="form-control" name="masa_kadaluarsa_hari" id="masa_kadaluarsa_hari">
-                                        <small class="text-muted">Untuk bahan baku yang ada expired</small>
+                                        <small class="text-muted">Untuk bahan baku</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Supplier Utama</label>
+                                        <select class="form-select" name="supplier_id" id="supplier_id">
+                                            <option value="">Pilih Supplier</option>
+                                            <?php
+                                            $suppliers = db_get_all("SELECT * FROM supplier WHERE status = 'aktif' ORDER BY nama_supplier ASC");
+                                            foreach ($suppliers as $sup) {
+                                                echo "<option value='{$sup['id']}'>{$sup['nama_supplier']}</option>";
+                                            }
+                                            ?>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -335,6 +350,7 @@ $(document).ready(function() {
             { data: 'jenis' },
             { data: 'kategori' },
             { data: 'satuan' },
+            { data: 'supplier' },
             { data: 'harga_beli' },
             { data: 'harga_jual_1' },
             { data: 'harga_jual_2' },
@@ -481,6 +497,7 @@ function addProduk() {
     $('#produkId').val('');
     $('#imgPreview').attr('src', '" . BASE_URL . "/assets/img/no-image.png');
     $('#kategori_id').html('<option value=\"\">Pilih Kategori</option>');
+    $('#supplier_id').val('');
     $('#barcode').val('');
 }
 
@@ -512,6 +529,7 @@ function editProduk(id) {
                 $('#masa_kadaluarsa_hari').val(data.masa_kadaluarsa_hari);
                 $('#spesifikasi').val(data.spesifikasi);
                 $('#deskripsi').val(data.deskripsi);
+                $('#supplier_id').val(data.supplier_id);
                 $('#barcode').val(data.barcode);
                 
                 // Populate price fields if they exist

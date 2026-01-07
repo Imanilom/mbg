@@ -526,4 +526,181 @@ class MenuHarianHelper {
         
         return $success;
     }
+    /**
+     * Get menus within a date range
+     */
+    public function getMenusByDateRange($start, $end) {
+        $sql = "SELECT m.*, k.nama_kantor,
+                (SELECT COUNT(*) FROM menu_harian_detail WHERE menu_id = m.id) as total_items
+                FROM menu_harian m
+                LEFT JOIN kantor k ON m.kantor_id = k.id
+                WHERE m.tanggal_menu BETWEEN ? AND ?
+                ORDER BY m.tanggal_menu ASC";
+                
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("ss", $start, $end);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $menus = [];
+        while ($row = $result->fetch_assoc()) {
+            // Group by date
+            $date = $row['tanggal_menu'];
+            if (!isset($menus[$date])) {
+                $menus[$date] = [];
+            }
+            $menus[$date][] = $row;
+        }
+        $stmt->close();
+        
+        return $menus;
+    }
+
+    /**
+     * Calculate shopping list for a date range
+     */
+    public function calculateShoppingList($start, $end) {
+        // Aggregate all items from menus in the range
+        // We only care about Approved or Draft menus (probably mostly Approved for final shopping, but Draft for planning)
+        // Let's include all non-cancelled menus
+        
+        $sql = "SELECT 
+                    p.id as produk_id,
+                    p.nama_produk,
+                    s.nama_satuan,
+                    SUM(mhd.qty_needed) as total_qty_needed
+                FROM menu_harian m
+                JOIN menu_harian_detail mhd ON m.id = mhd.menu_id
+                JOIN produk p ON mhd.produk_id = p.id
+                JOIN satuan s ON p.satuan_id = s.id
+                WHERE m.tanggal_menu BETWEEN ? AND ?
+                AND m.status != 'cancelled'
+                GROUP BY p.id, p.nama_produk, s.nama_satuan
+                ORDER BY p.nama_produk";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("ss", $start, $end);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $shopping_list = [];
+        while ($row = $result->fetch_assoc()) {
+            $produk_id = $row['produk_id'];
+            $warehouse_stock = $this->checkWarehouseStock($produk_id);
+            
+            $item = [
+                'produk_id' => $produk_id,
+                'nama_produk' => $row['nama_produk'],
+                'satuan' => $row['nama_satuan'],
+                'total_qty_needed' => floatval($row['total_qty_needed']),
+                'warehouse_stock' => $warehouse_stock,
+                'qty_to_purchase' => max(0, floatval($row['total_qty_needed']) - $warehouse_stock)
+            ];
+            
+            // Get market recommendation if purchase needed
+            if ($item['qty_to_purchase'] > 0) {
+                // Use start date for market price reference (or current date)
+                $market_rec = $this->getMarketRecommendation($produk_id, $start);
+                $item['market_recommendation'] = $market_rec;
+            }
+            
+            $shopping_list[] = $item;
+        }
+        $stmt->close();
+        
+        return $shopping_list;
+    }
+
+    /**
+     * Create menu from master catalog
+     */
+    public function createMenuFromMaster($menu_master_id, $tanggal_menu, $kantor_id, $total_porsi, $created_by) {
+        try {
+            $this->db->begin_transaction();
+            
+            // Get master menu
+            $sql = "SELECT * FROM menu_master WHERE id = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bind_param("i", $menu_master_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $master = $result->fetch_assoc();
+            $stmt->close();
+            
+            if (!$master) {
+                throw new Exception("Menu master tidak ditemukan");
+            }
+            
+            // Generate menu number
+            $no_menu = $this->generateMenuNumber();
+            
+            // Create menu_harian record
+            $sql = "INSERT INTO menu_harian (
+                        no_menu, menu_master_id, tanggal_menu, nama_menu, deskripsi, 
+                        total_porsi, kantor_id, created_by, status
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'draft')";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->bind_param("sisssiis", 
+                $no_menu,
+                $menu_master_id,
+                $tanggal_menu,
+                $master['nama_menu'],
+                $master['deskripsi'],
+                $total_porsi,
+                $kantor_id,
+                $created_by
+            );
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Gagal membuat menu harian");
+            }
+            $menu_id = $stmt->insert_id;
+            $stmt->close();
+            
+            // Get master menu items
+            $sql = "SELECT * FROM menu_master_detail WHERE menu_master_id = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bind_param("i", $menu_master_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            while ($item = $result->fetch_assoc()) {
+                if (!empty($item['resep_id'])) {
+                    // Recipe: decompose into products
+                    $ingredients = $this->getRecipeIngredients($item['resep_id'], $total_porsi);
+                    foreach ($ingredients as $ing) {
+                        $this->addMenuItem($menu_id, [
+                            'produk_id' => $ing['produk_id'],
+                            'qty_needed' => $ing['calculated_qty'],
+                            'resep_id' => $item['resep_id'],
+                            'keterangan' => $item['keterangan'] ?? ''
+                        ], $tanggal_menu);
+                    }
+                } else {
+                    // Product: scale quantity by total portions
+                    $qty_per_portion = floatval($item['qty_needed']);
+                    $total_qty_needed = $qty_per_portion * $total_porsi;
+                    
+                    $this->addMenuItem($menu_id, [
+                        'produk_id' => $item['produk_id'],
+                        'qty_needed' => $total_qty_needed,
+                        'resep_id' => null,
+                        'keterangan' => $item['keterangan'] ?? ''
+                    ], $tanggal_menu);
+                }
+            }
+            $stmt->close();
+            
+            $this->db->commit();
+            return $menu_id;
+            
+        } catch (Exception $e) {
+            if ($this->db->connect_errno == 0 && $this->db->ping()) {
+                $this->db->rollback();
+            }
+            error_log("Error creating menu from master: " . $e->getMessage());
+            throw $e;
+        }
+    }
 }

@@ -41,11 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($action)) {
     $total_data = db_get_row("SELECT COUNT(*) as total FROM produk")['total'];
     $total_filtered = db_get_row("SELECT COUNT(*) as total FROM produk p {$where_sql}")['total'];
     
-    $query = "SELECT p.*, jb.nama_jenis, k.nama_kategori, s.nama_satuan 
+    $query = "SELECT p.*, jb.nama_jenis, k.nama_kategori, s.nama_satuan, sup.nama_supplier 
               FROM produk p 
               INNER JOIN jenis_barang jb ON p.jenis_barang_id = jb.id 
               INNER JOIN kategori k ON p.kategori_id = k.id 
               INNER JOIN satuan s ON p.satuan_id = s.id 
+              LEFT JOIN supplier sup ON p.supplier_id = sup.id 
               {$where_sql} 
               ORDER BY p.kode_produk ASC 
               LIMIT {$start}, {$length}";
@@ -102,6 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($action)) {
             'jenis' => $p['nama_jenis'],
             'kategori' => $p['nama_kategori'],
             'satuan' => $p['nama_satuan'],
+            'supplier' => $p['nama_supplier'] ?? '-',
             'harga_beli' => format_rupiah($p['harga_beli']),
             'harga_jual_1' => format_rupiah($p['harga_jual_1']),
             'harga_jual_2' => format_rupiah($p['harga_jual_2']),
@@ -178,6 +180,7 @@ if ($action == 'save') {
     $status_produk = clean_input($_POST['status_produk']);
     $harga_estimasi = floatval($_POST['harga_estimasi'] ?? 0);
     $stok_minimum = intval($_POST['stok_minimum'] ?? 0);
+    $supplier_id = !empty($_POST['supplier_id']) ? intval($_POST['supplier_id']) : null;
     $masa_kadaluarsa_hari = !empty($_POST['masa_kadaluarsa_hari']) ? intval($_POST['masa_kadaluarsa_hari']) : null;
     $spesifikasi = clean_input($_POST['spesifikasi']);
     $deskripsi = clean_input($_POST['deskripsi']);
@@ -219,6 +222,7 @@ if ($action == 'save') {
         'status_produk' => $status_produk,
         'harga_estimasi' => $harga_estimasi,
         'stok_minimum' => $stok_minimum,
+        'supplier_id' => $supplier_id,
         'masa_kadaluarsa_hari' => $masa_kadaluarsa_hari,
         'spesifikasi' => $spesifikasi,
         'deskripsi' => $deskripsi,

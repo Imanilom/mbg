@@ -94,6 +94,12 @@ try {
                 VALUES ('" . db_escape($prod_id) . "', '$tanggal_terima', 'masuk', 'penerimaan', '$penerimaan_id', '$qty_gudang', '$saldo_awal', '$saldo_akhir', 'Penerimaan No: $no_penerimaan (HPP: $harga_beli)', '$user_id')";
                 
                 if(!db_query($sqlKartu)) throw new Exception("Gagal catat kartu stok");
+
+                // 2d. Update Harga Beli di Master Produk (Margin 1)
+                // Agar di modul Penetapan Harga selalu update dengan harga pembelian terakhir
+                if ($harga_beli > 0) {
+                    db_query("UPDATE produk SET harga_beli = '$harga_beli' WHERE id = '" . db_escape($prod_id) . "'");
+                }
             }
         }
     }

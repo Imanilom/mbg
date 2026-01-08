@@ -125,9 +125,14 @@ include '../../includes/sidebar.php';
                     <h5 class="mb-0 fw-800 text-dark">
                         <i class="fas fa-shopping-basket me-2 text-primary opacity-50"></i> Item Belanja
                     </h5>
-                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="btn-add-item">
-                        <i class="fas fa-plus me-1"></i> Tambah Item
-                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3" id="btn-browse-request">
+                            <i class="fas fa-file-import me-1"></i> Ambil dari Request
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="btn-add-item">
+                            <i class="fas fa-plus me-1"></i> Tambah Item
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -208,8 +213,47 @@ include '../../includes/sidebar.php';
 $json_items = json_encode($prefill_items ?? []);
 
 $extra_js = '
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</script>
+
+<!-- Modal Browse Request -->
+<div class="modal fade" id="modalRequest" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Ambil dari Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">No Request</th>
+                                <th>Tanggal</th>
+                                <th>Kantor</th>
+                                <th>Status</th>
+                                <th>Keperluan</th>
+                                <th class="text-end pe-4">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listRequestContainer">
+                            <!-- Loaded via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="loadingRequest" class="text-center py-4 d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div id="emptyRequest" class="text-center py-4 d-none">
+                    <p class="text-muted mb-0">Tidak ada request yang siap diproses</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     var prefillItems = ' . $json_items . ';
 
@@ -237,6 +281,12 @@ $extra_js = '
             addRow();
         });
         
+        // Open Modal Request
+        $("#btn-browse-request").click(function() {
+            $("#modalRequest").modal("show");
+            loadPendingRequests();
+        });
+
         $("#formBelanja").submit(function(e) {
             e.preventDefault();
             
@@ -274,6 +324,99 @@ $extra_js = '
             });
         });
     });
+
+    function loadPendingRequests() {
+        $("#listRequestContainer").empty();
+        $("#loadingRequest").removeClass("d-none");
+        $("#emptyRequest").addClass("d-none");
+
+        $.ajax({
+            url: "get_pending_requests.php",
+            type: "GET",
+            dataType: "json",
+            success: function(res) {
+                $("#loadingRequest").addClass("d-none");
+                if(res.status == "success" && res.data.length > 0) {
+                    res.data.forEach(function(req) {
+                        var html = `
+                            <tr>
+                                <td class="ps-4 fw-bold text-primary">${req.no_request}</td>
+                                <td>${req.tanggal_request}</td>
+                                <td>${req.nama_kantor}</td>
+                                <td><span class="badge ${req.status == \'diproses\' ? \'bg-primary\' : \'bg-warning\'}">${req.status.toUpperCase()}</span></td>
+                                <td>${req.keperluan}</td>
+                                <td class="text-end pe-4">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="importRequest(\'${req.id}\')">
+                                        <i class="fas fa-plus me-1"></i> Pilih
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        $("#listRequestContainer").append(html);
+                    });
+                } else {
+                    $("#emptyRequest").removeClass("d-none");
+                }
+            },
+            error: function() {
+                $("#loadingRequest").addClass("d-none");
+                $("#emptyRequest").removeClass("d-none").find("p").text("Gagal memuat data");
+            }
+        });
+    }
+
+    function importRequest(requestId) {
+        Swal.fire({
+            title: \'Memproses...\',
+            didOpen: () => { Swal.showLoading() }
+        });
+
+        $.ajax({
+            url: "get_request_items.php",
+            type: "POST",
+            data: { request_id: requestId },
+            dataType: "json",
+            success: function(res) {
+                Swal.close();
+                if(res.status == "success") {
+                    $("#modalRequest").modal("hide");
+                    
+                    // Clear empty initial row if exists and is empty
+                    var rows = $("#table-detail tbody tr");
+                    if(rows.length === 1) {
+                         var firstRowVal = rows.first().find(".select-produk").val();
+                         if(!firstRowVal) rows.first().remove();
+                    }
+
+                    res.data.forEach(function(item) {
+                        var data = {
+                            produk_id: item.produk_id,
+                            qty: item.qty_request,
+                            harga: item.harga_terakhir || 0
+                        };
+                        addRowWithData(data);
+                    });
+                    
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: \'top-end\',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                    Toast.fire({
+                        icon: \'success\',
+                        title: res.data.length + \' item ditambahkan\'
+                    });
+                } else {
+                    Swal.fire("Gagal", res.message, "error");
+                }
+            },
+            error: function() {
+                Swal.close();
+                Swal.fire("Error", "Gagal mengambil detail request", "error");
+            }
+        });
+    }
 
     function updatePeriodeValue() {
         var type = $("#periode_type").val();
@@ -329,7 +472,7 @@ $extra_js = '
         // Trigger default population first
         produkChanged(select[0]);
         
-        // Override with our data
+        // Override with our data (qty request)
         row.find(".input-qty").val(data.qty);
         
         if (data.harga > 0) {
@@ -374,7 +517,7 @@ $extra_js = '
         if(row.find(".input-harga").val() == "") {
              row.find(".input-harga").val(formatRupiahJS(harga));
              row.find(".input-harga-val").val(harga);
-        }
+         }
         cals(select);
     }
 

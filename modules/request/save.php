@@ -31,7 +31,7 @@ try {
     if (empty($no_request)) throw new Exception("No Request tidak boleh kosong");
 
     $query_header = "INSERT INTO request (no_request, tanggal_request, kantor_id, user_id, keperluan, tanggal_butuh, status)
-                    VALUES (" . db_escape($no_request) . ", " . db_escape($tanggal_request) . ", " . db_escape($kantor_id) . ", " . db_escape($user_id) . ", " . db_escape($keperluan) . ", " . ($tanggal_butuh ? db_escape($tanggal_butuh) : "NULL") . ", '$status')";
+                    VALUES ('" . db_escape($no_request) . "', '" . db_escape($tanggal_request) . "', '" . db_escape($kantor_id) . "', '" . db_escape($user_id) . "', '" . db_escape($keperluan) . "', " . ($tanggal_butuh ? "'" . db_escape($tanggal_butuh) . "'" : "NULL") . ", '$status')";
     
     if(!mysqli_query($conn, $query_header)) {
         throw new Exception("Gagal menyimpan request: " . mysqli_error($conn));
@@ -49,7 +49,7 @@ try {
             if (empty($produk_id)) continue;
 
             $query_detail = "INSERT INTO request_detail (request_id, produk_id, qty_request, keterangan)
-                            VALUES ('$request_id', " . db_escape($produk_id) . ", " . db_escape($qty_request) . ", " . db_escape($keterangan) . ")";
+                            VALUES ('$request_id', '" . db_escape($produk_id) . "', '" . db_escape($qty_request) . "', '" . db_escape($keterangan) . "')";
             
             if(!mysqli_query($conn, $query_detail)) {
                 throw new Exception("Gagal menyimpan detail request: " . mysqli_error($conn));

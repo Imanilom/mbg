@@ -45,7 +45,7 @@ switch ($jenis) {
         }
         $query .= " ORDER BY r.created_at DESC";
         $data = db_get_all($query);
-        $columns = ['Nomor', 'Tanggal', 'Kantor', 'Pemohon', 'Prioritas', 'Status'];
+        $columns = ['Nomor', 'Tanggal', 'Kantor', 'Pemohon', 'Status'];
         break;
 
     case 'pembelanjaan':
@@ -182,11 +182,11 @@ switch ($jenis) {
                 <?php 
                 // Manual Rendering based on Type
                 if ($jenis == 'request') {
-                    echo "<td>{$row['nomor_request']}</td>";
+                    echo "<td>" . ($row['no_request'] ?? '-') . "</td>";
                     echo "<td>" . format_tanggal($row['created_at']) . "</td>";
                     echo "<td>{$row['nama_kantor']}</td>";
                     echo "<td>{$row['pemohon']}</td>";
-                    echo "<td>{$row['prioritas']}</td>";
+                    // echo "<td>{$row['prioritas']}</td>"; // Column removed as it likely doesn't exist in DB schema based on warning
                     echo "<td>{$row['status']}</td>";
                 } elseif ($jenis == 'pembelanjaan') {
                     echo "<td>{$row['no_pembelanjaan']}</td>";

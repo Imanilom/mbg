@@ -125,8 +125,10 @@ include '../../includes/sidebar.php';
     </section>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
-
+<?php 
+ob_start(); 
+?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $('#formApprove').submit(function(e) {
     e.preventDefault();
@@ -164,5 +166,7 @@ $('#formApprove').submit(function(e) {
     });
 });
 </script>
-</body>
-</html>
+<?php 
+$extra_js = ob_get_clean(); 
+include '../../includes/footer.php'; 
+?>

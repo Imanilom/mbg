@@ -26,13 +26,13 @@ if(mysqli_num_rows($result) == 0) {
 $request = mysqli_fetch_assoc($result);
 
 // Get detail with stock info
-$query_detail = "SELECT rd.*, p.kode_produk, p.nama_produk, s.nama_satuan,
+$query_detail = "SELECT rd.*, p.kode_produk, p.nama_produk, s.nama_satuan as product_satuan,
                 (SELECT COALESCE(SUM(qty_available), 0) FROM gudang_stok WHERE produk_id = p.id AND kondisi = 'baik') as stok_tersedia
                 FROM request_detail rd
-                INNER JOIN produk p ON rd.produk_id = p.id
-                INNER JOIN satuan s ON p.satuan_id = s.id
+                LEFT JOIN produk p ON rd.produk_id = p.id
+                LEFT JOIN satuan s ON p.satuan_id = s.id
                 WHERE rd.request_id = '$id'
-                ORDER BY p.nama_produk";
+                ORDER BY CASE WHEN rd.item_type = 'manual' THEN rd.custom_name ELSE p.nama_produk END";
 
 $detail_result = mysqli_query($conn, $query_detail);
 
@@ -84,15 +84,28 @@ include '../../includes/sidebar.php';
                                 <tr>
                                     <td><?= $no++ ?></td>
                                     <td>
-                                        <?= $item['kode_produk'] ?> - <?= $item['nama_produk'] ?><br>
-                                        <small class="text-muted"><?= $item['nama_satuan'] ?></small>
+                                        <?php if ($item['item_type'] === 'manual'): ?>
+                                            <span class="badge badge-warning text-dark">Manual</span><br>
+                                            <?= htmlspecialchars($item['custom_name']) ?>
+                                            <small class="text-muted d-block"><?= htmlspecialchars($item['satuan']) ?></small>
+                                        <?php else: ?>
+                                            <?= $item['kode_produk'] ?> - <?= htmlspecialchars($item['nama_produk']) ?><br>
+                                            <small class="text-muted"><?= htmlspecialchars($item['product_satuan']) ?></small>
+                                        <?php endif; ?>
                                     </td>
                                     <td><?= number_format($item['qty_request'], 2) ?></td>
-                                    <td><?= number_format($item['stok_tersedia'], 2) ?></td>
+                                    <td>
+                                        <?php if ($item['item_type'] === 'manual'): ?>
+                                            <span class="text-muted">N/A</span>
+                                        <?php else: ?>
+                                            <?= number_format($item['stok_tersedia'], 2) ?>
+                                        <?php endif; ?>
+                                    </td>
                                     <td>
                                         <input type="hidden" name="items[<?= $item['id'] ?>][detail_id]" value="<?= $item['id'] ?>">
                                         <input type="number" class="form-control" name="items[<?= $item['id'] ?>][qty_approved]" 
-                                               value="<?= $item['qty_request'] ?>" min="0" max="<?= $item['stok_tersedia'] ?>" 
+                                               value="<?= $item['qty_request'] ?>" min="0" 
+                                               <?= $item['item_type'] === 'product' ? 'max="'.$item['stok_tersedia'].'"' : '' ?> 
                                                step="0.01" required>
                                     </td>
                                     <td>

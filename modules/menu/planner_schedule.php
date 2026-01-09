@@ -182,26 +182,28 @@ require_once '../../includes/navbar.php';
                                             <th>#</th>
                                             <th>Nama</th>
                                             <th>Tipe</th>
-                                            <th class="text-end">Qty/Porsi</th>
+                                            <th class="text-end">Gramasi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php foreach ($menu_catalog['items'] as $idx => $item): ?>
                                         <tr>
                                             <td><?= $idx + 1 ?></td>
-                                            <td>
-                                                <?= htmlspecialchars($item['produk_id'] ? $item['nama_produk'] : $item['nama_resep']) ?>
-                                            </td>
-                                            <td>
-                                                <?php if ($item['produk_id']): ?>
+                                             <td>
+                                                <?= htmlspecialchars($item['item_type'] === 'manual' ? $item['custom_name'] : ($item['produk_id'] ? $item['nama_produk'] : $item['nama_resep'])) ?>
+                                             </td>
+                                             <td>
+                                                <?php if ($item['item_type'] === 'product' || $item['produk_id']): ?>
                                                     <span class="badge bg-primary">Produk</span>
-                                                <?php else: ?>
+                                                <?php elseif ($item['item_type'] === 'recipe' || $item['resep_id']): ?>
                                                     <span class="badge bg-info">Resep</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-warning text-dark">Manual</span>
                                                 <?php endif; ?>
-                                            </td>
-                                            <td class="text-end">
-                                                <?= format_number($item['qty_needed']) ?> <?= $item['nama_satuan'] ?>
-                                            </td>
+                                             </td>
+                                             <td class="text-end">
+                                                <?= format_number($item['qty_needed']) ?> <?= htmlspecialchars($item['item_type'] === 'manual' ? $item['keterangan'] : $item['nama_satuan']) ?>
+                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
                                     </tbody>

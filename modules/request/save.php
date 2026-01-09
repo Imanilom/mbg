@@ -42,14 +42,17 @@ try {
     // Insert detail
     if(isset($_POST['items']) && is_array($_POST['items'])) {
         foreach($_POST['items'] as $item) {
-            $produk_id = $item['produk_id'] ?? 0;
+            $produk_id = !empty($item['produk_id']) ? $item['produk_id'] : "NULL";
+            $custom_name = !empty($item['custom_name']) ? "'" . db_escape($item['custom_name']) . "'" : "NULL";
+            $item_type = !empty($item['item_type']) ? "'" . db_escape($item['item_type']) . "'" : "'product'";
+            $satuan = !empty($item['satuan']) ? "'" . db_escape($item['satuan']) . "'" : "NULL";
             $qty_request = $item['qty'] ?? 0;
             $keterangan = $item['keterangan'] ?? '';
             
-            if (empty($produk_id)) continue;
+            if ($produk_id === "NULL" && $custom_name === "NULL") continue;
 
-            $query_detail = "INSERT INTO request_detail (request_id, produk_id, qty_request, keterangan)
-                            VALUES ('$request_id', '" . db_escape($produk_id) . "', '" . db_escape($qty_request) . "', '" . db_escape($keterangan) . "')";
+            $query_detail = "INSERT INTO request_detail (request_id, produk_id, custom_name, item_type, qty_request, satuan, keterangan)
+                            VALUES ('$request_id', $produk_id, $custom_name, $item_type, '" . db_escape($qty_request) . "', $satuan, '" . db_escape($keterangan) . "')";
             
             if(!mysqli_query($conn, $query_detail)) {
                 throw new Exception("Gagal menyimpan detail request: " . mysqli_error($conn));

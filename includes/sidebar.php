@@ -12,8 +12,8 @@ function is_active($keyword) {
 <nav id="sidebar">
     <div class="sidebar-header">
         <h3>
-            <img src="<?= BASE_URL ?>/assets/img/mbg.png" alt="MBG Logo" style="width: 38px; height: 38px; object-fit: contain;" class="me-2">
-            MBG SYSTEM
+            <img src="<?= BASE_URL ?>/assets/img/logo_koperasi.png" alt="MBG Logo" style="width: 100px; height: 100px; object-fit: contain;" class="me-2">
+            Aplikasi Koperasi
         </h3>
         <div class="mt-3 px-2 py-1 bg-white bg-opacity-10 rounded-pill d-inline-block" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; color: #94a3b8;">
             <?= get_role_label() ?> Panel

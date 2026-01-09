@@ -332,26 +332,43 @@ class MenuHarianHelper {
      */
     public function addMenuItem($menu_id, $item, $tanggal_menu) {
         $resep_id = $item['resep_id'] ?? null;
+        $item_type = $item['item_type'] ?? 'product';
+        $custom_name = $item['custom_name'] ?? null;
+        $satuan = $item['satuan'] ?? null;
+        $produk_id = $item['produk_id'] ?? null;
         
-        // Calculate stock allocation
-        $allocation = $this->calculateStockAllocation(
-            $item['produk_id'], 
-            $item['qty_needed'],
-            $tanggal_menu
-        );
+        $allocation = [
+            'qty_from_warehouse' => 0,
+            'qty_to_purchase' => $item['qty_needed'],
+            'market_recommendation' => null
+        ];
+
+        if ($item_type === 'product' && $produk_id) {
+            // Calculate stock allocation for actual products
+            $allocation = $this->calculateStockAllocation(
+                $produk_id, 
+                $item['qty_needed'],
+                $tanggal_menu
+            );
+        }
         
-        // Insert menu detail (added resep_id)
+        // Insert menu detail
         $sql = "INSERT INTO menu_harian_detail (
-                    menu_id, produk_id, resep_id, qty_needed, qty_from_warehouse, 
+                    menu_id, produk_id, custom_name, item_type, resep_id, qty_needed, satuan, qty_from_warehouse, 
                     qty_to_purchase, market_recommendation, keterangan
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("iiidddss",
+        // Corrected types: s for string, i for int, d for double
+        // 1:i, 2:i, 3:s, 4:s, 5:i, 6:d, 7:s, 8:d, 9:d, 10:d, 11:s
+        $stmt->bind_param("iissiddddds",
             $menu_id,
-            $item['produk_id'],
+            $produk_id,
+            $custom_name,
+            $item_type,
             $resep_id,
             $item['qty_needed'],
+            $satuan,
             $allocation['qty_from_warehouse'],
             $allocation['qty_to_purchase'],
             $allocation['market_recommendation'],
@@ -665,32 +682,86 @@ class MenuHarianHelper {
             $stmt->execute();
             $result = $stmt->get_result();
             
+            $request_items = [];
+
             while ($item = $result->fetch_assoc()) {
                 if (!empty($item['resep_id'])) {
                     // Recipe: decompose into products
                     $ingredients = $this->getRecipeIngredients($item['resep_id'], $total_porsi);
                     foreach ($ingredients as $ing) {
-                        $this->addMenuItem($menu_id, [
+                        $item_data = [
                             'produk_id' => $ing['produk_id'],
                             'qty_needed' => $ing['calculated_qty'],
                             'resep_id' => $item['resep_id'],
-                            'keterangan' => $item['keterangan'] ?? ''
-                        ], $tanggal_menu);
+                            'keterangan' => $item['keterangan'] ?? '',
+                            'item_type' => 'product'
+                        ];
+                        $this->addMenuItem($menu_id, $item_data, $tanggal_menu);
+
+                        // Check if needs request
+                        $alloc = $this->calculateStockAllocation($ing['produk_id'], $ing['calculated_qty'], $tanggal_menu);
+                        if ($alloc['qty_to_purchase'] > 0) {
+                            $request_items[] = [
+                                'produk_id' => $ing['produk_id'],
+                                'qty' => $alloc['qty_to_purchase'],
+                                'keterangan' => 'Kebutuhan menu ' . $master['nama_menu']
+                            ];
+                        }
                     }
+                } else if ($item['item_type'] === 'manual') {
+                    // Manual item (User prompted: manual items means there's no product in database)
+                    $total_qty_needed = floatval($item['qty_needed']) * $total_porsi;
+                    
+                    $item_data = [
+                        'produk_id' => null,
+                        'custom_name' => $item['custom_name'],
+                        'item_type' => 'manual',
+                        'qty_needed' => $total_qty_needed,
+                        'satuan' => $item['keterangan'], // Keterangan in master_detail = unit
+                        'keterangan' => 'Manual item dari master'
+                    ];
+                    $this->addMenuItem($menu_id, $item_data, $tanggal_menu);
+
+                    // Manual items always go to request
+                    $request_items[] = [
+                        'produk_id' => null,
+                        'custom_name' => $item['custom_name'],
+                        'item_type' => 'manual',
+                        'qty' => $total_qty_needed,
+                        'satuan' => $item['keterangan'],
+                        'keterangan' => 'Kebutuhan menu ' . $master['nama_menu']
+                    ];
                 } else {
                     // Product: scale quantity by total portions
                     $qty_per_portion = floatval($item['qty_needed']);
                     $total_qty_needed = $qty_per_portion * $total_porsi;
                     
-                    $this->addMenuItem($menu_id, [
+                    $item_data = [
                         'produk_id' => $item['produk_id'],
                         'qty_needed' => $total_qty_needed,
                         'resep_id' => null,
-                        'keterangan' => $item['keterangan'] ?? ''
-                    ], $tanggal_menu);
+                        'keterangan' => $item['keterangan'] ?? '',
+                        'item_type' => 'product'
+                    ];
+                    $this->addMenuItem($menu_id, $item_data, $tanggal_menu);
+
+                    // Check if needs request
+                    $alloc = $this->calculateStockAllocation($item['produk_id'], $total_qty_needed, $tanggal_menu);
+                    if ($alloc['qty_to_purchase'] > 0) {
+                        $request_items[] = [
+                            'produk_id' => $item['produk_id'],
+                            'qty' => $alloc['qty_to_purchase'],
+                            'keterangan' => 'Kebutuhan menu ' . $master['nama_menu']
+                        ];
+                    }
                 }
             }
             $stmt->close();
+            
+            // Create auto request if items needed
+            if (!empty($request_items)) {
+                $this->createAutoRequest($menu_id, $request_items, $created_by, $tanggal_menu, $kantor_id);
+            }
             
             $this->db->commit();
             return $menu_id;
@@ -702,5 +773,70 @@ class MenuHarianHelper {
             error_log("Error creating menu from master: " . $e->getMessage());
             throw $e;
         }
+    }
+
+    /**
+     * Create automated purchase request for menu items
+     */
+    public function createAutoRequest($menu_id, $items, $user_id, $tanggal_menu, $kantor_id = null) {
+        $no_request = generate_number('REQ', 'request', 'no_request');
+        
+        $sql = "INSERT INTO request (
+                    no_request, tanggal_request, kantor_id, user_id, 
+                    keperluan, tanggal_butuh, status
+                ) VALUES (?, CURDATE(), ?, ?, ?, ?, 'pending')";
+        
+        $stmt = $this->db->prepare($sql);
+        $keperluan = "Otomatis dari Planner Menu ID: " . $menu_id;
+        $kantor_id = $kantor_id ?: 1; // Default to main if not specified
+        
+        $stmt->bind_param("siiss", 
+            $no_request,
+            $kantor_id,
+            $user_id,
+            $keperluan,
+            $tanggal_menu
+        );
+        
+        if (!$stmt->execute()) {
+            throw new Exception("Gagal membuat header request otomatis");
+        }
+        
+        $request_id = $stmt->insert_id;
+        $stmt->close();
+        
+        // Insert details
+        $sql_detail = "INSERT INTO request_detail (
+                        request_id, produk_id, custom_name, item_type, qty_request, satuan, keterangan
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt_detail = $this->db->prepare($sql_detail);
+        
+        foreach ($items as $item) {
+            $produk_id = $item['produk_id'] ?? null;
+            $custom_name = $item['custom_name'] ?? null;
+            $type = $item['item_type'] ?? 'product';
+            $satuan = $item['satuan'] ?? null;
+            
+            $stmt_detail->bind_param("iissdss",
+                $request_id,
+                $produk_id,
+                $custom_name,
+                $type,
+                $item['qty'],
+                $satuan,
+                $item['keterangan']
+            );
+            $stmt_detail->execute();
+        }
+        $stmt_detail->close();
+        
+        // Log activity
+        require_once __DIR__ . '/functions.php';
+        logActivity($this->db, $user_id, "Request otomatis dibuat: $no_request", 'request', $request_id);
+        
+        // Link request to menu_harian (optional, let's update menu_harian if we had a request_id column there)
+        // But for now it's linked via description
+        
+        return $request_id;
     }
 }

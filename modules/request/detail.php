@@ -33,12 +33,12 @@ if($user['role'] == 'kantor' && $request['kantor_id'] != $user['kantor_id']) {
 }
 
 // Get detail items
-$query_detail = "SELECT rd.*, p.kode_produk, p.nama_produk, s.nama_satuan
+$query_detail = "SELECT rd.*, p.kode_produk, p.nama_produk, s.nama_satuan as product_satuan
                 FROM request_detail rd
-                INNER JOIN produk p ON rd.produk_id = p.id
-                INNER JOIN satuan s ON p.satuan_id = s.id
+                LEFT JOIN produk p ON rd.produk_id = p.id
+                LEFT JOIN satuan s ON p.satuan_id = s.id
                 WHERE rd.request_id = '$id'
-                ORDER BY p.nama_produk";
+                ORDER BY CASE WHEN rd.item_type = 'manual' THEN rd.custom_name ELSE p.nama_produk END";
 
 $detail_result = mysqli_query($conn, $query_detail);
 
@@ -118,12 +118,18 @@ include '../../includes/sidebar.php';
                             $no = 1;
                             mysqli_data_seek($detail_result, 0);
                             while($item = mysqli_fetch_assoc($detail_result)): 
+                                $item_type = trim($item['item_type']);
                             ?>
                             <tr>
                                 <td class="text-center"><?= $no++ ?></td>
-                                <td class="fw-bold text-dark">
-                                    <span class="small text-muted d-block"><?= $item['kode_produk'] ?></span>
-                                    <?= $item['nama_produk'] ?>
+                                 <td class="fw-bold text-dark">
+                                    <?php if ($item_type === 'manual'): ?>
+                                        <span class="badge bg-warning text-dark mb-1">Manual</span><br>
+                                        <?= htmlspecialchars($item['custom_name']) ?>
+                                    <?php else: ?>
+                                        <span class="small text-muted d-block"><?= htmlspecialchars($item['kode_produk']) ?></span>
+                                        <?= htmlspecialchars($item['nama_produk']) ?>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="text-center"><?= number_format($item['qty_request'], 2) ?></td>
                                 <td class="text-center">
@@ -131,8 +137,8 @@ include '../../includes/sidebar.php';
                                         <?= $item['qty_approved'] ? number_format($item['qty_approved'], 2) : '-' ?>
                                     </span>
                                 </td>
-                                <td><?= $item['nama_satuan'] ?></td>
-                                <td class="small"><?= $item['keterangan'] ?></td>
+                                <td><?= htmlspecialchars($item_type === 'manual' ? $item['satuan'] : $item['product_satuan']) ?></td>
+                                <td class="small"><?= htmlspecialchars($item['keterangan']) ?></td>
                             </tr>
                             <?php endwhile; ?>
                         </tbody>
